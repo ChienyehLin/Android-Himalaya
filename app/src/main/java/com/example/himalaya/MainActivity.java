@@ -1,28 +1,38 @@
 package com.example.himalaya;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import android.nfc.Tag;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
-import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
-import com.ximalaya.ting.android.opensdk.model.category.Category;
-import com.ximalaya.ting.android.opensdk.model.category.CategoryList;
+import com.example.himalaya.adapters.IndicatorAdaptor;
+import com.example.himalaya.adapters.MainContentAdapter;
+import com.example.himalaya.utils.LogUtil;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.lucode.hackware.magicindicator.MagicIndicator;
+import net.lucode.hackware.magicindicator.ViewPagerHelper;
+import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private MagicIndicator mMagicIndicator;
+    private ViewPager mContentPager;
+    private MainContentAdapter mMainContentAdapter;
+    private IndicatorAdaptor mIndicatorAdaptor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        initView();
+        initEvent();
+/*
         Map<String, String> map = new HashMap<String, String>();
         CommonRequest.getCategories(map, new IDataCallBack<CategoryList>() {
             @Override
@@ -33,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                     int size = categories.size();
                     Log.d(TAG,"categories size ======> "+size);
                     for (Category category : categories) {
-                        Log.d(TAG,"category --->" +category.getCategoryName());
+                        LogUtil.d(TAG,"category ===>"+category.getCategoryName());
                     }
                 }
 
@@ -43,7 +53,45 @@ public class MainActivity extends AppCompatActivity {
             public void onError(int i, String s) {
                     Log.e(TAG,"error code ===>"+i+"error message===>"+s);
             }
-        });
+        });*/
+    }
+
+    private void initEvent() {
+       mIndicatorAdaptor.setOnIndicatorTabListener(new IndicatorAdaptor.OnIndicatorTabClickListener() {
+           @Override
+           public void onTabClick(int index) {
+               LogUtil.d(TAG,"click index is ===>"+index);
+               if (mContentPager != null) {
+                   mContentPager.setCurrentItem(index);
+               }
+           }
+       });
+    }
+
+    private void initView() {
+        mMagicIndicator = findViewById(R.id.magic_indicator);
+        mMagicIndicator.setBackgroundColor(this.getResources().getColor(R.color.mainColor));//设置indicator颜色
+
+        //创建Indicator的适配器
+        mIndicatorAdaptor = new IndicatorAdaptor(this);
+        CommonNavigator commonNavigator = new CommonNavigator(this);
+        //自我调节平分宽度
+        commonNavigator.setAdjustMode(true);
+        commonNavigator.setAdapter(mIndicatorAdaptor);
+        //设置要显示的内容
+
+
+        //ViewPager
+        mContentPager = this.findViewById(R.id.content_pager);
+
+        //创建ViewPager的适配器
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        mMainContentAdapter = new MainContentAdapter(fragmentManager, FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        mContentPager.setAdapter(mMainContentAdapter);
+
+        //把ViewPager和Indicator 绑定到一起
+        mMagicIndicator.setNavigator(commonNavigator);
+        ViewPagerHelper.bind(mMagicIndicator, mContentPager);
     }
 
 }

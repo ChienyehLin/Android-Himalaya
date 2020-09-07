@@ -2,6 +2,7 @@ package com.example.himalaya.base;
 
 import android.app.Application;
 
+import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
 
@@ -21,7 +22,8 @@ public class BaseApplication extends Application {
             mXimalaya.setPackid("com.ximalaya.qunfeng");
             mXimalaya.init(this ,mAppSecret);
         }
-
+        //初始化LogUtil,可以确保是应用打出来的log,改为True就可以隐藏所有log
+        LogUtil.init(this.getPackageName(),false);
 
     }
 }
