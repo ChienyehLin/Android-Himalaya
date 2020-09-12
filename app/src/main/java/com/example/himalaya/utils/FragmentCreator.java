@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FragmentCreator {
-    private static Map<Integer, BaseFragment> sCache = new HashMap<>();
+    private static Map<Integer, BaseFragment> sCache = new HashMap<>();//类被加载时  静态成员new的对象就一直存在
     public final static int INDEX_RECOMMEND = 0;
     public final static int INDEX_SUBSCRIPTION = 1;
     public final static int INDEX_HISTORY = 2;
