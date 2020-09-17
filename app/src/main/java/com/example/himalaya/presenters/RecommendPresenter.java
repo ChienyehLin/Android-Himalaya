@@ -17,25 +17,27 @@ import java.util.Map;
 
 public class RecommendPresenter implements IRecommendPresenter {
 
-    private  static  RecommendPresenter sInstance = null;
-    private String TAG ="RecommendPresenter";
-    private  List<IRecommendViewCallback> mCallbacks = new ArrayList<>();
+    private static RecommendPresenter sInstance = null;
+    private String TAG = "RecommendPresenter";
+    private List<IRecommendViewCallback> mCallbacks = new ArrayList<>();
 
     /**
      * 获取单例对象，懒汉式单例模式
+     *
      * @return
      */
-    public  static  RecommendPresenter getInstance(){
-        if (sInstance==null) {      //
-            synchronized (RecommendPresenter.class){
+    public static RecommendPresenter getInstance() {
+        if (sInstance == null) {      //
+            synchronized (RecommendPresenter.class) {
                 if (sInstance == null) {
-                    sInstance=new RecommendPresenter();
+                    sInstance = new RecommendPresenter();
                 }
             }
         }
-        return  sInstance;
+        return sInstance;
     }
-    private  RecommendPresenter(){
+
+    private RecommendPresenter() {
 
     }
 
@@ -46,15 +48,16 @@ public class RecommendPresenter implements IRecommendPresenter {
     @Override
     public void getRecommendList() {
         //封装参数
+        updateLoading();
         Map<String, String> map = new HashMap<>();
         //这个参数表示一夜数据返回多少条
         map.put(DTransferConstants.LIKE_COUNT, Constants.RECOMMEND_COUNT + "");
-        LogUtil.d(TAG, "requesting ====>" );
+        LogUtil.d(TAG, "requesting ====>");
         CommonRequest.getGuessLikeAlbum(map, new IDataCallBack<GussLikeAlbumList>() {
             @Override
             public void onSuccess(GussLikeAlbumList gussLikeAlbumList) {
                 //UI是在主线程中回调
-                LogUtil.d(TAG,"thread name====>"+Thread.currentThread().getName());
+                LogUtil.d(TAG, "thread name====>" + Thread.currentThread().getName());
                 //数据获取成功
                 if (gussLikeAlbumList != null) {
                     List<Album> albumList = gussLikeAlbumList.getAlbumList();
@@ -73,28 +76,40 @@ public class RecommendPresenter implements IRecommendPresenter {
                 //数据获取出错
                 LogUtil.d(TAG, "error ====>" + i);
                 LogUtil.d(TAG, "error message ====>" + s);
+                handleError();
             }
         });
     }
 
+    private void handleError() {
 
-    private void handleRecommendResult(List<Album> albumList) {
-        //通知Ui
         if (mCallbacks != null) {
             for (IRecommendViewCallback callback : mCallbacks) {
-                callback.onRecommendListLoad(albumList);
+                callback.onNetworkError();
             }
         }
     }
 
-    @Override
-    public void Pull2RefreshMore() {
 
+    private void handleRecommendResult(List<Album> albumList) {
+        if (albumList != null) {
+            if (albumList.size() == 0) {
+                for (IRecommendViewCallback callback : mCallbacks) {
+                    callback.onEmpty();
+                }
+            }else {
+                //通知Ui
+                for (IRecommendViewCallback callback : mCallbacks) {
+                    callback.onRecommendListLoad(albumList);
+                }
+            }
+        }
     }
 
-    @Override
-    public void loadMore() {
-
+    private void updateLoading() {
+        for (IRecommendViewCallback callback : mCallbacks) {
+            callback.onLoading();
+        }
     }
 
     @Override
