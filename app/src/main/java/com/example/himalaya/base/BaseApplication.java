@@ -2,7 +2,9 @@ package com.example.himalaya.base;
 
 import android.app.Application;
 import android.os.Handler;
+import android.os.RemoteException;
 
+import com.example.himalaya.aidl.IMyAidlInterface;
 import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
@@ -30,7 +32,6 @@ public class BaseApplication extends Application {
         //初始化LogUtil,可以确保是应用打出来的log,改为True就可以隐藏所有log
         LogUtil.init(this.getPackageName(),false);
 
-        sHandler= new Handler();
     }
 
     public  static  Handler getsHandler(){
