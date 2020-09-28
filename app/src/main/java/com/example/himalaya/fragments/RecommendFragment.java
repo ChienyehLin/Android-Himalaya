@@ -2,6 +2,7 @@ package com.example.himalaya.fragments;
 
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,9 +28,11 @@ import com.ximalaya.ting.android.opensdk.model.album.GussLikeAlbumList;
 
 import net.lucode.hackware.magicindicator.buildins.UIUtil;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 public class RecommendFragment extends BaseFragment implements IRecommendViewCallback {
     private static final String TAG = RecommendFragment.class.getSimpleName();
@@ -43,7 +46,14 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
 
     @Override
     protected View onSubViewLoaded(final LayoutInflater layoutInflater, ViewGroup container) {
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            new PriorityQueue<Integer>(new Comparator<Integer>() {
+                @Override
+                public int compare(Integer o1, Integer o2) {
+                    return o1-o2;
+                }
+            });
+        }
         mUiLoader = new UILoader(getContext()) {
             @Override
             protected View getSuccessView(ViewGroup container) {

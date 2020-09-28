@@ -1,19 +1,30 @@
 package com.example.himalaya;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RemoteViews;
 import android.widget.SeekBar;
 
 import com.example.himalaya.interfaces.IPlayerControl;
@@ -24,6 +35,7 @@ import com.example.himalaya.utils.LogUtil;
 import static com.example.himalaya.interfaces.IPlayerControl.PLAYER_STATE_PAUSE;
 import static com.example.himalaya.interfaces.IPlayerControl.PLAYER_STATE_PLAY;
 import static com.example.himalaya.interfaces.IPlayerControl.PLAYER_STATE_STOP;
+import static com.ximalaya.ting.android.opensdk.player.appnotification.XmNotificationCreater.CHANNEL_ID;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -35,6 +47,7 @@ public class PlayerActivity extends AppCompatActivity {
     private IPlayerControl mIPlayerControl;
     private boolean isUserTouchProgressBar = false;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +60,18 @@ public class PlayerActivity extends AppCompatActivity {
         initService();
         //绑定服务
         initBindService();
+        //注册通知频道
+        registerNotificationChannel();
     }
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void registerNotificationChannel(){
+        NotificationChannel channel = new NotificationChannel("playerChannel", "player notification", NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("description");
+        // Register the channel with the system; you can't change the importance
+        // or other notification behaviors after this
+        NotificationManager notificationManager = PlayerActivity.this.getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
+    }
     private void requestPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -139,6 +162,7 @@ public class PlayerActivity extends AppCompatActivity {
         });
             //播放器开源框架exo player
         mButtonPlayPause.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
 
